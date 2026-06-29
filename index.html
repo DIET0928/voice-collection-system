@@ -52,12 +52,12 @@
     }
 
     .browser-warning {
-      background-color: #fdecea;
-      border-left: 6px solid #c0392b;
+      background-color: #fff4e6;
+      border-left: 6px solid #d35400;
       padding: 12px 16px;
       margin-bottom: 16px;
       border-radius: 4px;
-      color: #922b21;
+      color: #7e5109;
       font-size: 15px;
       line-height: 1.6;
       display: none;
@@ -232,30 +232,32 @@
     }
 
     #message {
-      margin-top: 18px;
-      padding: 12px;
-      border-radius: 4px;
-      font-weight: bold;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-weight: normal;
       display: none;
       white-space: pre-wrap;
+      font-size: 15px;
+      line-height: 1.6;
     }
 
     .message-success {
-      background-color: #d5f5e3;
+      background-color: #eefaf1;
       color: #145a32;
-      border: 1px solid #82e0aa;
+      border: 1px solid #b7e4c7;
     }
 
     .message-error {
-      background-color: #fadbd8;
-      color: #922b21;
-      border: 1px solid #f1948a;
+      background-color: #fff4e6;
+      color: #7e5109;
+      border: 1px solid #f5cba7;
     }
 
     .message-info {
-      background-color: #d6eaf8;
+      background-color: #eef6fb;
       color: #154360;
-      border: 1px solid #85c1e9;
+      border: 1px solid #aed6f1;
     }
 
     @media screen and (max-width: 600px) {
@@ -566,12 +568,18 @@
         durationSeconds = 0;
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          showMessage("此瀏覽器不支援錄音。請改用 Safari 或 Chrome 開啟。", "error");
+          showMessage(
+            "目前此瀏覽器無法啟動錄音。\n\n請使用 Safari 或 Chrome 開啟本系統，再按一次「開始錄音」。",
+            "error"
+          );
           return;
         }
 
         if (typeof MediaRecorder === "undefined") {
-          showMessage("此瀏覽器不支援 MediaRecorder 錄音功能。請改用新版 Safari 或 Chrome。", "error");
+          showMessage(
+            "目前此瀏覽器不支援網頁錄音功能。\n\n請改用新版 Safari 或 Chrome 開啟本系統。",
+            "error"
+          );
           return;
         }
 
@@ -644,7 +652,7 @@
 
       } catch (error) {
         showMessage(
-          "無法啟動手機麥克風。\n\n請確認：\n1. 使用 Safari 或 Chrome 開啟。\n2. 手機設定中允許瀏覽器使用麥克風。\n3. 網址必須是 https:// 開頭。\n\n錯誤訊息：" + error.message,
+          "目前尚未取得麥克風權限。\n\n請確認瀏覽器已允許使用麥克風後，再按一次「開始錄音」。\n\n若使用 iPhone，請到：設定 → Safari → 麥克風 → 選擇允許。",
           "error"
         );
       }
@@ -772,7 +780,7 @@
 
       } catch (error) {
         showMessage(
-          "送出失敗，請檢查網路後重新送出。\n\n錯誤訊息：" + error.message,
+          "目前無法送出資料。\n\n請確認網路連線後，再按一次「送出收案資料」。",
           "error"
         );
 
