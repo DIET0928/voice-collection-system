@@ -128,9 +128,6 @@
     }
 
     .picture-recording-area {
-      position: sticky;
-      top: 0;
-      z-index: 20;
       background-color: #f9f9f9;
       padding: 12px 0 16px 0;
       border-bottom: 1px solid #dddddd;
@@ -241,7 +238,7 @@
       color: white;
       width: 100%;
       font-size: 18px;
-      margin-top: 24px;
+      margin-top: 14px;
       padding: 14px;
     }
 
@@ -464,14 +461,14 @@
         <span id="recordingStatus">尚未錄音</span>
         <span id="timerDisplay">00:00</span>
       </div>
+
+      <button type="button" id="submitBtn" onclick="submitForm()" disabled>
+        送出收案資料
+      </button>
+
+      <div id="message"></div>
     </div>
   </div>
-
-  <button type="button" id="submitBtn" onclick="submitForm()" disabled>
-    送出收案資料
-  </button>
-
-  <div id="message"></div>
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxRf1Fd9-yPbQE__Uex1YwrbAhqfJilOTMssT2SIbriId9E4oQ_oO1fFU8tXxz-fZo/exec';
