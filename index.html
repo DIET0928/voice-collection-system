@@ -206,10 +206,29 @@
       padding: 10px;
       background: #eaeded;
       border-radius: 4px;
+      border: 1px solid transparent;
+    }
+
+    .status-container.time-short {
+      background-color: #fff4e6;
+      color: #7e5109;
+      border: 1px solid #f5cba7;
+    }
+
+    .status-container.time-ok {
+      background-color: #eefaf1;
+      color: #145a32;
+      border: 1px solid #b7e4c7;
+    }
+
+    .status-container.time-over {
+      background-color: #fdecea;
+      color: #922b21;
+      border: 1px solid #f1948a;
     }
 
     #recordingStatus {
-      color: #7f8c8d;
+      color: inherit;
     }
 
     #timerDisplay {
@@ -309,8 +328,8 @@
     4. 最高學歷若選擇「未滿國小」，系統仍可送出，但資料與語音檔會自動標記為「建議排除」。<br>
     5. 錄音前請讓受試者看著圖片，請受試者盡可能描述圖片中看見的所有事件。<br>
     6. 訪員請勿提示圖片內容或替受試者回答，只可提醒：「請繼續描述你看到的內容」。<br>
-    7. 按下「開始錄音」後，請受試者自然描述圖片，建議錄音時間為 60 至 90 秒。<br>
-    8. 錄音完成後按下「停止錄音」，確認畫面出現「錄音完成，可送出」。<br>
+    7. 按下「開始錄音」後，請受試者自然描述圖片，建議錄音時間為 40 至 60 秒。<br>
+    8. 錄音完成後按下「停止錄音」，確認畫面出現「錄音完成」與秒數提醒。<br>
     9. 最後按下「送出收案資料」，待系統顯示受試者編號後，才算完成收案。
   </div>
 
@@ -423,7 +442,8 @@
     <span class="alert-title">⚠️ 錄音與引導注意事項</span>
     • 為確保語音分析品質，請務必於<strong>安靜無噪音的環境</strong>中進行錄音。<br>
     • 請受試者看著下方圖片，盡可能描述圖片中所看見的所有事件。<br>
-    • 錄音時間請維持約 <strong>60 至 90 秒</strong>。
+    • 錄音時間請維持約 <strong>40 至 60 秒</strong>。<br>
+    • 時間提醒：未滿 40 秒為橘色，40 至 60 秒為綠色，超過 60 秒為紅色。
   </div>
 
   <div class="picture-recording-area">
@@ -464,6 +484,9 @@
     let timerInterval = null;
     let durationSeconds = 0;
     let currentSubjectId = "";
+
+    const MIN_RECORDING_SECONDS = 40;
+    const MAX_RECORDING_SECONDS = 60;
 
     function checkBrowserEnvironment() {
       const userAgent = navigator.userAgent || "";
@@ -516,6 +539,13 @@
       }
     }
 
+    function hideMessage() {
+      const messageBox = document.getElementById("message");
+      messageBox.style.display = "none";
+      messageBox.textContent = "";
+      messageBox.classList.remove("message-success", "message-error", "message-info");
+    }
+
     function checkEducationWarning() {
       const educationValue = document.getElementById("education").value;
       const warningBox = document.getElementById("educationWarning");
@@ -536,6 +566,30 @@
       const secText = String(sec).padStart(2, "0");
 
       document.getElementById("timerDisplay").textContent = minText + ":" + secText;
+
+      updateRecordingTimeColor(seconds);
+    }
+
+    function updateRecordingTimeColor(seconds) {
+      const statusBox = document.querySelector(".status-container");
+      const statusText = document.getElementById("recordingStatus");
+
+      statusBox.classList.remove("time-short", "time-ok", "time-over");
+
+      if (!mediaRecorder || mediaRecorder.state !== "recording") {
+        return;
+      }
+
+      if (seconds < MIN_RECORDING_SECONDS) {
+        statusBox.classList.add("time-short");
+        statusText.textContent = "錄音中：尚未達 40 秒";
+      } else if (seconds <= MAX_RECORDING_SECONDS) {
+        statusBox.classList.add("time-ok");
+        statusText.textContent = "錄音中：時間符合建議範圍";
+      } else {
+        statusBox.classList.add("time-over");
+        statusText.textContent = "錄音中：已超過 60 秒，建議停止錄音";
+      }
     }
 
     function startTimer() {
@@ -566,6 +620,9 @@
         audioChunks = [];
         audioBase64 = "";
         durationSeconds = 0;
+
+        const statusBox = document.querySelector(".status-container");
+        statusBox.classList.remove("time-short", "time-ok", "time-over");
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           showMessage(
@@ -614,20 +671,29 @@
           reader.onloadend = function () {
             audioBase64 = reader.result.split(",")[1];
 
-            document.getElementById("recordingStatus").textContent = "錄音完成，可送出";
-            document.getElementById("recordingStatus").style.color = "#1e8449";
             document.getElementById("submitBtn").disabled = false;
 
             const educationValue = document.getElementById("education").value;
+            const statusBox = document.querySelector(".status-container");
+            const statusText = document.getElementById("recordingStatus");
+
+            statusBox.classList.remove("time-short", "time-ok", "time-over");
+
+            if (durationSeconds < MIN_RECORDING_SECONDS) {
+              statusBox.classList.add("time-short");
+              statusText.textContent = "錄音完成：少於 40 秒，建議重新錄音";
+            } else if (durationSeconds <= MAX_RECORDING_SECONDS) {
+              statusBox.classList.add("time-ok");
+              statusText.textContent = "錄音完成：時間符合建議範圍";
+            } else {
+              statusBox.classList.add("time-over");
+              statusText.textContent = "錄音完成：超過 60 秒，建議註記或重新錄音";
+            }
 
             if (educationValue === "0") {
-              showMessage("錄音完成。提醒：此個案教育程度為未滿國小，送出後所有資料與語音檔會標記為建議排除。", "info");
-            } else if (durationSeconds < 60) {
-              showMessage("提醒：目前錄音秒數少於 60 秒，建議確認是否需要重新錄音。", "info");
-            } else if (durationSeconds > 90) {
-              showMessage("提醒：目前錄音秒數超過 90 秒，仍可送出，但建議紀錄實際秒數。", "info");
+              showMessage("提醒：此個案教育程度為未滿國小，送出後所有資料與語音檔會標記為建議排除。", "info");
             } else {
-              showMessage("錄音完成，秒數符合建議範圍。", "success");
+              hideMessage();
             }
           };
 
@@ -645,8 +711,7 @@
         document.getElementById("stopBtn").disabled = false;
         document.getElementById("submitBtn").disabled = true;
 
-        document.getElementById("recordingStatus").textContent = "錄音中，請看圖描述";
-        document.getElementById("recordingStatus").style.color = "#cb4335";
+        document.getElementById("recordingStatus").textContent = "錄音中：尚未達 40 秒";
 
         showMessage("錄音中。請受試者持續看著圖片，自然描述圖片中發生的事件。", "info");
 
@@ -667,7 +732,6 @@
         document.getElementById("stopBtn").disabled = true;
 
         document.getElementById("recordingStatus").textContent = "錄音處理中";
-        document.getElementById("recordingStatus").style.color = "#7f8c8d";
       }
     }
 
