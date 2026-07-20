@@ -381,6 +381,46 @@
 
   <div class="flex-row">
     <div class="form-group flex-item">
+      <label>主要使用語言</label>
+      <select id="primary_language" required>
+        <option value="" disabled selected>請選擇</option>
+        <option value="Mandarin">國語／華語（Mandarin）</option>
+        <option value="Taiwanese">台語（Taiwanese）</option>
+        <option value="Hakka">客語（Hakka）</option>
+        <option value="Other">其他（Other）</option>
+      </select>
+    </div>
+
+    <div class="form-group flex-item">
+      <label>本次收案使用語言</label>
+      <select id="task_language" required>
+        <option value="" disabled selected>請選擇</option>
+        <option value="Mandarin">國語／華語（Mandarin）</option>
+        <option value="Taiwanese">台語（Taiwanese）</option>
+        <option value="Hakka">客語（Hakka）</option>
+        <option value="Mixed">混合使用（Mixed）</option>
+        <option value="Other">其他（Other）</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>錄音距離抽血日期幾天後（QSSP 0-7天）</label>
+    <select id="qssp_days" required>
+      <option value="" disabled selected>請選擇</option>
+      <option value="0">0 天，抽血當天錄音</option>
+      <option value="1">1 天後</option>
+      <option value="2">2 天後</option>
+      <option value="3">3 天後</option>
+      <option value="4">4 天後</option>
+      <option value="5">5 天後</option>
+      <option value="6">6 天後</option>
+      <option value="7">7 天後</option>
+    </select>
+  </div>
+
+  <div class="flex-row">
+    <div class="form-group flex-item">
       <label>吸菸習慣</label>
       <select id="smoking">
         <option value="0">無（0）</option>
@@ -770,6 +810,18 @@
         return "請選擇最高學歷。";
       }
 
+      if (getValue("primary_language") === "") {
+        return "請選擇主要使用語言。";
+      }
+
+      if (getValue("task_language") === "") {
+        return "請選擇本次收案使用語言。";
+      }
+
+      if (getValue("qssp_days") === "") {
+        return "請選擇錄音距離抽血日期幾天後。";
+      }
+
       if (!getValue("contact")) {
         return "請填寫聯絡方式。";
       }
@@ -802,6 +854,9 @@
         age: getValue("age"),
         gender: getValue("gender"),
         education: getValue("education"),
+        primary_language: getValue("primary_language"),
+        task_language: getValue("task_language"),
+        qssp_days: getValue("qssp_days"),
         smoking: getValue("smoking"),
         drinking: getValue("drinking"),
         height: getValue("height"),
